@@ -17,22 +17,34 @@ struct ContentView: View {
     @State private var meals = [Meal]()
     
     var body: some View {
-        Text("Desserts")
-            .font(.title)
-            .bold()
-        
-        // sort list in alphabetical order
-        List(meals.sorted(by: { $0.strMeal < $1.strMeal }), id: \.idMeal) { meal in
-            VStack {
-                Text(meal.strMeal)
+        NavigationSplitView {
+            // sort list in alphabetical order
+            List(meals.sorted(by: { $0.strMeal < $1.strMeal }), id: \.idMeal) { meal in
+                NavigationLink {
+                    
+                    DetailsView(id: meal.idMeal)
+                    
+                } label: {
+                    HStack {
+                        AsyncImage(url: URL(string: meal.strMealThumb)) { image in
+                            image.image?.resizable()
+                        }
+                        .frame(maxWidth: 50, maxHeight: 50)
+                        
+                        Text(meal.strMeal)
+                    }
+                }
             }
+            .navigationTitle("Desserts")
+            .scrollContentBackground(.visible)
+            .task {
+                await loadData()
+            }
+            
+            // ...
+        } detail: {
+            // ...
         }
-        .scrollContentBackground(.visible)
-        .task {
-            await loadData()
-        }
-        
-        // ...
     }
     
     func loadData() async {
@@ -46,7 +58,7 @@ struct ContentView: View {
             // we only want the data, not metadata
             let (data, _) = try await URLSession.shared.data(from: url)
 
-            if let decodedResponse = try? JSONDecoder().decode(Response.self, from: data) {
+            if let decodedResponse = try? JSONDecoder().decode(MealResponse.self, from: data) {
                 meals = decodedResponse.meals
             }
             
@@ -58,15 +70,18 @@ struct ContentView: View {
     // ...
 }
 
-struct Response: Codable {
-    var meals: [Meal]
+struct MealResponse: Codable {
+    let meals: [Meal]
 }
 
+
+
 struct Meal: Codable {
-    var strMeal: String
-    var strMealThumb: String
-    var idMeal: String
+    let strMeal: String
+    let strMealThumb: String
+    let idMeal: String
 }
+
 
 #Preview {
     ContentView()
