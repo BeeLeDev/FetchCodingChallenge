@@ -22,6 +22,7 @@ struct ContentView: View {
             List(meals.sorted(by: { $0.strMeal < $1.strMeal }), id: \.idMeal) { meal in
                 NavigationLink {
                     
+                    // TODO: some view don't show, then crashes, figure this out
                     DetailsView(id: meal.idMeal)
                     
                 } label: {
@@ -48,7 +49,7 @@ struct ContentView: View {
     }
     
     func loadData() async {
-        guard let url = URL(string: "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert") 
+        guard let url = URL(string: "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert")
         else {
             print("Invalid URL")
             return
