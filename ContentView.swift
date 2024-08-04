@@ -17,18 +17,19 @@ struct ContentView: View {
     @State private var meals = [Meal]()
     
     var body: some View {
-        NavigationSplitView {
+        NavigationStack {
             // sort list in alphabetical order
             List(meals.sorted(by: { $0.strMeal < $1.strMeal }), id: \.idMeal) { meal in
                 NavigationLink {
-                    
-                    // TODO: some view don't show, then crashes, figure this out
+                    // detail view of meal
                     DetailsView(id: meal.idMeal)
-                    
                 } label: {
+                    // row view in list of meal
                     HStack {
                         AsyncImage(url: URL(string: meal.strMealThumb)) { image in
-                            image.image?.resizable()
+                            image.resizable()
+                        } placeholder: {
+                            ProgressView()
                         }
                         .frame(maxWidth: 50, maxHeight: 50)
                         
@@ -41,11 +42,8 @@ struct ContentView: View {
             .task {
                 await loadData()
             }
-            
-            // ...
-        } detail: {
-            // ...
         }
+            // ...
     }
     
     func loadData() async {
@@ -62,7 +60,6 @@ struct ContentView: View {
             if let decodedResponse = try? JSONDecoder().decode(MealResponse.self, from: data) {
                 meals = decodedResponse.meals
             }
-            
         } catch {
         print("Invalid data")
         }
@@ -75,14 +72,11 @@ struct MealResponse: Codable {
     let meals: [Meal]
 }
 
-
-
 struct Meal: Codable {
     let strMeal: String
     let strMealThumb: String
     let idMeal: String
 }
-
 
 #Preview {
     ContentView()
