@@ -24,29 +24,19 @@ struct ContentView: View {
                     // detail view of meal
                     DetailsView(id: meal.idMeal)
                 } label: {
-                    // row view in list of meal
-                    HStack {
-                        AsyncImage(url: URL(string: meal.strMealThumb)) { image in
-                            image.resizable()
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(maxWidth: 50, maxHeight: 50)
-                        
-                        Text(meal.strMeal)
-                    }
+                    ListRowView(meal: meal)
                 }
             }
             .navigationTitle("Desserts")
             .scrollContentBackground(.visible)
             .task {
-                await loadData()
+                await loadMeals()
             }
         }
             // ...
     }
     
-    func loadData() async {
+    func loadMeals() async {
         guard let url = URL(string: "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert")
         else {
             print("Invalid URL")
@@ -61,7 +51,7 @@ struct ContentView: View {
                 meals = decodedResponse.meals
             }
         } catch {
-        print("Invalid data")
+            print("Invalid data")
         }
     }
     
